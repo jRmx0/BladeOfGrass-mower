@@ -1,6 +1,5 @@
 # Ignore build directories
 build/
-.vscode/
 
 # Ignore SDK configuration files
 sdkconfig

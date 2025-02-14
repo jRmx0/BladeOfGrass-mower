@@ -6,5 +6,11 @@
         "target/esp32s3.cfg"
     ],
     "idf.toolsPathWin": "c:\\Espressif\\v5.4.0\\tools",
-    "idf.portWin": "COM9"
+    "idf.portWin": "COM9",
+    "files.associations": {
+        "freertos.h": "c",
+        "ledc.h": "c",
+        "motor_drive.h": "c",
+        "esp_log.h": "c"
+    }
 }

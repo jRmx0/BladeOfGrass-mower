@@ -1,6 +1,18 @@
-idf_component_register(SRCS "main.c" "motors/motor_drive.c"
-                    PRIV_REQUIRES 
-                        
-                    REQUIRES
-                        
-                    INCLUDE_DIRS "" "motors/")
+idf_component_register(
+    SRCS 
+        "main.c" 
+        "motors/motor_drive.c"
+    PRIV_REQUIRES 
+        spi_flash
+        nvs_flash
+        wifi_connect
+        esp_http_server
+        esp_driver_gpio
+        json
+        fatfs                
+    REQUIRES
+        esp_driver_ledc
+    INCLUDE_DIRS 
+        "" 
+        "motors/"
+)

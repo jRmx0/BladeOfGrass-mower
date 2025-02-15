@@ -1,3 +1,6 @@
+#ifndef MOTOR_DRIVE_H
+#define MOTOR_DRIVE_H
+
 #include <stdio.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -11,3 +14,5 @@
 #define TESTING_MOTOR_1_PIN_1 41
 
 esp_err_t testing_motors();
+
+#endif

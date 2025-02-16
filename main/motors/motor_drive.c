@@ -2,11 +2,9 @@
 
 #define TAG "DRIVE"
 
-esp_err_t testing_motors () {
-    ESP_LOGI(TAG, "START: Motors testing");
-    ESP_LOGI(TAG, "Motor 0 pins: %d, %d", TESTING_MOTOR_0_PIN_0, TESTING_MOTOR_0_PIN_1);
-    ESP_LOGI(TAG, "Motor 1 pins: %d, %d", TESTING_MOTOR_1_PIN_0, TESTING_MOTOR_1_PIN_1);
-    
+
+esp_err_t init_motors(void)
+{
     ledc_timer_config_t timer = {
         .speed_mode = LEDC_LOW_SPEED_MODE,
         .duty_resolution = LEDC_TIMER_10_BIT,
@@ -57,7 +55,17 @@ esp_err_t testing_motors () {
     ledc_channel_config(&channel_3);
 
     ledc_fade_func_install(0);
+    
 
+
+    return ESP_OK;
+}
+
+esp_err_t testing_motors (void) {
+    ESP_LOGI(TAG, "START: Motors testing");
+    ESP_LOGI(TAG, "Motor 0 pins: %d, %d", TESTING_MOTOR_0_PIN_0, TESTING_MOTOR_0_PIN_1);
+    ESP_LOGI(TAG, "Motor 1 pins: %d, %d", TESTING_MOTOR_1_PIN_0, TESTING_MOTOR_1_PIN_1);
+    
     ledc_set_fade_time_and_start(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, 1024, 2500, LEDC_FADE_NO_WAIT);
     ledc_set_fade_time_and_start(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_2, 1024, 2500, LEDC_FADE_WAIT_DONE);
     

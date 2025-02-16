@@ -12,6 +12,7 @@
         "ledc.h": "c",
         "motor_drive.h": "c",
         "esp_log.h": "c",
-        "wifi_connect.h": "c"
+        "wifi_connect.h": "c",
+        "main.h": "c"
     }
 }

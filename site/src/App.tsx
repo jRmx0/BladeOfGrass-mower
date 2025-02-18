@@ -16,6 +16,7 @@ function App() {
   const [btnState, setBtnState] = useState(true);
   const [message, setMessage] = useState("");
   const [ledOn, setLedOn] = useState(false);
+  const [socket, setSocket] = useState<WebSocket | null>(null);
 
   useEffect(() => {
     getHelloWorld();
@@ -24,10 +25,32 @@ function App() {
 
   const handleMove = (event: IJoystickUpdateEvent) => {
     console.log('Move event:', event);
+    if (socket && socket.readyState === WebSocket.OPEN) {
+        const joystickData = {
+            type: 'joystick',
+            action: 'move',
+            x: event.x,
+            y: event.y,
+            direction: event.direction,
+            distance: event.distance
+        };
+        socket.send(JSON.stringify(joystickData));
+    }
   };
 
   const handleStop = (event: IJoystickUpdateEvent) => {
     console.log('Stop event:', event);
+    if (socket && socket.readyState === WebSocket.OPEN) {
+        const joystickData = {
+            type: 'joystick',
+            action: 'stop',
+            x: 0,
+            y: 0,
+            direction: null,
+            distance: 0
+        };
+        socket.send(JSON.stringify(joystickData));
+    }
   };
 
   const getHelloWorld = async () => {
@@ -45,6 +68,7 @@ function App() {
     const socket = new WebSocket(getWebSocketUrl("ws"))
     socket.onopen = () => {
       socket.send("Hello ESP32");
+      setSocket(socket);
     }
     socket.onmessage = (event) => {
       console.log(event.data);
@@ -72,10 +96,11 @@ function App() {
       return;
     }
     setLedOn(is_on);
-    webSocket();
   }
 
   const getLedText = () => ledOn ? "LED is on" : "LED is off";
+
+  
 
   return (
     <>
@@ -96,7 +121,7 @@ function App() {
           stickColor="#ff833f"
           move={handleMove}
           stop={handleStop}
-          throttle={250}
+          throttle={50}
         />
       </div>
     </>

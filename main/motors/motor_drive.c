@@ -2,7 +2,6 @@
 
 #define TAG "DRIVE"
 
-
 esp_err_t init_motors(void)
 {
     ledc_timer_config_t timer = {
@@ -55,8 +54,6 @@ esp_err_t init_motors(void)
     ledc_channel_config(&channel_3);
 
     ledc_fade_func_install(0);
-    
-
 
     return ESP_OK;
 }

@@ -1,6 +1,4 @@
 import { useState, useEffect } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
 import { Joystick } from 'react-joystick-component';
 
@@ -11,7 +9,7 @@ export interface IJoystickUpdateEvent {
   x: number | null;
   y: number | null;
   direction: JoystickDirection | null;
-  distance: number | null; // Percentile 0-100% of joystick 
+  distance: number | null;
 }
 
 function App() {
@@ -50,11 +48,13 @@ function App() {
     }
     socket.onmessage = (event) => {
       console.log(event.data);
-      try {
-        const attemptedBtnState = JSON.parse(event.data)
-        setBtnState(attemptedBtnState.btn_state)
-      } finally {
-
+      if (event.data.startsWith('{')) {
+        try {
+          const attemptedBtnState = JSON.parse(event.data);
+          setBtnState(attemptedBtnState.btn_state);
+        } catch (err) {
+          console.error('Failed to parse JSON:', err);
+        }  
       }
     }
     socket.onerror = (err) => console.error(err);
@@ -72,20 +72,13 @@ function App() {
       return;
     }
     setLedOn(is_on);
+    webSocket();
   }
 
   const getLedText = () => ledOn ? "LED is on" : "LED is off";
 
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
       <h1>{message}</h1>
       <div className="card">
         <button
@@ -94,20 +87,11 @@ function App() {
         >
           {getLedText()}
         </button>
-        <div style={{ 
-          width: "50px", 
-          height: "50px", 
-          border: "3px solid black", 
-          margin: "auto",
-          borderRadius: "50px",
-          marginTop: "16px",
-          background: btnState ? "green" : "",
-        }}
-        ></div>
+        <div className={`component-btn-builtin-state ${btnState ? 'active' : ''}`}></div>
       </div>
       <div className="component-joystick">
         <Joystick
-          size={300}
+          size={100}
           baseColor="#ffac7f"
           stickColor="#ff833f"
           move={handleMove}

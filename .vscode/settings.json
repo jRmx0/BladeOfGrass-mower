@@ -14,5 +14,6 @@
         "esp_log.h": "c",
         "wifi_connect.h": "c",
         "main.h": "c"
-    }
+    },
+    "idf.flashType": "UART"
 }

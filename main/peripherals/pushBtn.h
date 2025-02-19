@@ -1,6 +1,8 @@
 #ifndef pushBtn_h
 #define pushBtn_h
 
-void init_btn(void);
+#define BTN 0
+
+void btn_init(void);
 
 #endif

@@ -2,11 +2,11 @@
 
 void app_main(void)
 {
-    init_motors();
-    init_led();
-    init_btn();
+    motors_drive_init();
+    led_init();
+    btn_init();
     
-    //testing_motors();
+    //motors_drive_testing();
     
     ESP_ERROR_CHECK(nvs_flash_init());
     

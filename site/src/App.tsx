@@ -3,7 +3,7 @@ import './App.css'
 import { Joystick } from 'react-joystick-component';
 
 const TAG_APP = "APP";
-const TAG_ESP = "ESP";
+//const TAG_ESP = "ESP";
 
 type JoystickDirection = "FORWARD" | "RIGHT" | "LEFT" | "BACKWARD";
 
@@ -27,7 +27,7 @@ function App() {
   }, []);
 
   const handleMove = (event: IJoystickUpdateEvent) => {
-    console.log('Move event:', event);
+    //console.log('Move event:', event);
     if (socket && socket.readyState === WebSocket.OPEN) {
         const joystickData = {
             type: 'joystick',
@@ -41,8 +41,8 @@ function App() {
     }
   };
 
-  const handleStop = (event: IJoystickUpdateEvent) => {
-    console.log('Stop event:', event);
+  const handleStop = () => {
+    //console.log('Stop event:', event);
     if (socket && socket.readyState === WebSocket.OPEN) {
         const joystickData = {
             type: 'joystick',
@@ -81,7 +81,7 @@ function App() {
     }
     
     socket.onmessage = (event) => {
-      console.log(TAG_ESP + ': ' + event.data);
+      //console.log(TAG_ESP + ': ' + event.data);
       if (event.data.startsWith('{')) {
         try {
           const attemptedBtnState = JSON.parse(event.data);
@@ -136,7 +136,7 @@ function App() {
           stickColor="#ff833f"
           move={handleMove}
           stop={handleStop}
-          throttle={250}
+          throttle={100}
         />
       </div>
     </>

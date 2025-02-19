@@ -1,4 +1,15 @@
 #include "server.h"
+#include <stdlib.h>
+#include "esp_vfs.h"
+#include "esp_vfs_fat.h"
+#include "esp_log.h"
+#include "esp_http_server.h"
+#include "esp_heap_caps.h"
+#include "mdns.h"
+
+#include "toggleLed.h"
+#include "pushBtn.h"
+#include "motor_drive.h"
 
 static const char *TAG = "SERVER";
 static const char *BASE_PATH = "/store";
@@ -53,7 +64,7 @@ static esp_err_t on_toggle_led_url(httpd_req_t *req)
   bool is_on = cJSON_IsTrue(is_on_json);
   cJSON_Delete(payload);
   
-  toggle_led(is_on);
+  led_toggle(is_on);
   httpd_resp_set_status(req,"204 NO CONTENT");
   httpd_resp_send(req,NULL,0);
   return ESP_OK;
@@ -99,9 +110,11 @@ static esp_err_t on_web_socket_url(httpd_req_t *req)
   httpd_ws_recv_frame(req, &ws_pkt, WS_MAX_SIZE);
 
   cJSON *payload = cJSON_Parse((const char*)ws_pkt.payload);
+  free(ws_pkt.payload);
   if (payload == NULL)
   {
     ESP_LOGE(TAG, "Failed to parse JSON");
+    cJSON_Delete(payload);
     return ESP_FAIL;
   }
 
@@ -109,6 +122,7 @@ static esp_err_t on_web_socket_url(httpd_req_t *req)
   if (type == NULL || !cJSON_IsString(type))
   {
     ESP_LOGE(TAG, "Unsupported JSON type");
+    cJSON_Delete(payload);
     return ESP_FAIL;
   }
 
@@ -137,11 +151,11 @@ static esp_err_t on_web_socket_url(httpd_req_t *req)
           break;
         } 
         if (cJSON_IsString(direction)) {
-          ESP_LOGI(TAG, "Joystick direction: %s", direction->valuestring);
+          motors_drive_control_joystick(payload);
           break;
         }
         if (cJSON_IsNull(direction)) {
-          ESP_LOGI(TAG, "Joystick direction: %s", "NULL");
+          motors_drive_control_joystick(payload);
           break;
         }
     } break;
@@ -151,9 +165,8 @@ static esp_err_t on_web_socket_url(httpd_req_t *req)
         break;
   }
 
-  //ESP_LOGI(TAG, "ws payload: %.*s\n", ws_pkt.len, ws_pkt.payload);
-  free(ws_pkt.payload);
-
+  cJSON_Delete(payload);
+  //log_heap_usage();
   return ESP_OK;
 }
 
@@ -219,4 +232,9 @@ int getTypeId(cJSON *type)
   if (strcmp(type->valuestring, "onopen") == 0) return WS_TYPE_ONOPEN;
   if (strcmp(type->valuestring, "joystick") == 0) return WS_TYPE_JOYSTICK;
   return WS_TYPE_UNSPECIFIED;
+}
+
+void log_heap_usage() {
+  size_t free_heap = heap_caps_get_free_size(MALLOC_CAP_8BIT);
+  ESP_LOGI(TAG, "Free heap size: %d bytes", free_heap);
 }

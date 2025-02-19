@@ -2,6 +2,9 @@ import { useState, useEffect } from 'react'
 import './App.css'
 import { Joystick } from 'react-joystick-component';
 
+const TAG_APP = "APP";
+const TAG_ESP = "ESP";
+
 type JoystickDirection = "FORWARD" | "RIGHT" | "LEFT" | "BACKWARD";
 
 export interface IJoystickUpdateEvent {
@@ -66,12 +69,19 @@ function App() {
 
   const webSocket = () => {
     const socket = new WebSocket(getWebSocketUrl("ws"))
+    
     socket.onopen = () => {
-      socket.send("Hello ESP32");
       setSocket(socket);
+      console.log(TAG_APP + ': WebSocket connected');
+      const onopenData = {
+        type: 'onopen',
+        message: 'WebSocket connection successful'
+      }
+      socket.send(JSON.stringify(onopenData));
     }
+    
     socket.onmessage = (event) => {
-      console.log(event.data);
+      console.log(TAG_ESP + ': ' + event.data);
       if (event.data.startsWith('{')) {
         try {
           const attemptedBtnState = JSON.parse(event.data);
@@ -81,8 +91,13 @@ function App() {
         }  
       }
     }
+    
     socket.onerror = (err) => console.error(err);
-    socket.onclose = (event) => console.log(event);
+    
+    socket.onclose = (event) => {
+      console.log(event);
+      setSocket(null);
+    }
   };
 
   const switchLed = async (is_on: boolean) => {
@@ -121,7 +136,7 @@ function App() {
           stickColor="#ff833f"
           move={handleMove}
           stop={handleStop}
-          throttle={50}
+          throttle={250}
         />
       </div>
     </>

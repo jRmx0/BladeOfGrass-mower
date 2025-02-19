@@ -47,10 +47,12 @@ static esp_err_t on_toggle_led_url(httpd_req_t *req)
   char buffer[100];
   memset(&buffer,0, sizeof(buffer));
   httpd_req_recv(req,buffer,req->content_len);
+  
   cJSON *payload = cJSON_Parse(buffer);
   cJSON *is_on_json = cJSON_GetObjectItem(payload,"is_on");
   bool is_on = cJSON_IsTrue(is_on_json);
   cJSON_Delete(payload);
+  
   toggle_led(is_on);
   httpd_resp_set_status(req,"204 NO CONTENT");
   httpd_resp_send(req,NULL,0);
@@ -95,17 +97,64 @@ static esp_err_t on_web_socket_url(httpd_req_t *req)
   ws_pkt.type = HTTPD_WS_TYPE_TEXT;
   ws_pkt.payload = malloc(WS_MAX_SIZE);
   httpd_ws_recv_frame(req, &ws_pkt, WS_MAX_SIZE);
-  printf("ws payload: %.*s\n", ws_pkt.len, ws_pkt.payload);
+
+  cJSON *payload = cJSON_Parse((const char*)ws_pkt.payload);
+  if (payload == NULL)
+  {
+    ESP_LOGE(TAG, "Failed to parse JSON");
+    return ESP_FAIL;
+  }
+
+  cJSON *type = cJSON_GetObjectItem(payload, "type");
+  if (type == NULL || !cJSON_IsString(type))
+  {
+    ESP_LOGE(TAG, "Unsupported JSON type");
+    return ESP_FAIL;
+  }
+
+  uint8_t type_id = getTypeId(type);
+  switch (type_id) {
+    case WS_TYPE_ONOPEN: {
+        cJSON *message = cJSON_GetObjectItem(payload, "message");
+        if (message != NULL && cJSON_IsString(message)) {
+            ESP_LOGI(TAG, "Received message: %s", message->valuestring);
+        }
+        
+        char *response = "connected OK 😊";
+        httpd_ws_frame_t ws_responce = {
+          .final = true,
+          .fragmented = false,
+          .type = HTTPD_WS_TYPE_TEXT,
+          .payload = (uint8_t *)response,
+          .len = strlen(response)};
+        return httpd_ws_send_frame(req, &ws_responce);
+    } break;
+
+    case WS_TYPE_JOYSTICK: {
+        cJSON *direction = cJSON_GetObjectItem(payload, "direction");
+        if (direction == NULL) {
+          ESP_LOGE(TAG, "Missing direction in joystick JSON"); 
+          break;
+        } 
+        if (cJSON_IsString(direction)) {
+          ESP_LOGI(TAG, "Joystick direction: %s", direction->valuestring);
+          break;
+        }
+        if (cJSON_IsNull(direction)) {
+          ESP_LOGI(TAG, "Joystick direction: %s", "NULL");
+          break;
+        }
+    } break;
+
+    default:
+        ESP_LOGW(TAG, "Unhandled type_id: %d", type_id);
+        break;
+  }
+
+  //ESP_LOGI(TAG, "ws payload: %.*s\n", ws_pkt.len, ws_pkt.payload);
   free(ws_pkt.payload);
 
-  char *response = "connected OK 😊";
-  httpd_ws_frame_t ws_responce = {
-      .final = true,
-      .fragmented = false,
-      .type = HTTPD_WS_TYPE_TEXT,
-      .payload = (uint8_t *)response,
-      .len = strlen(response)};
-  return httpd_ws_send_frame(req, &ws_responce);
+  return ESP_OK;
 }
 
 /*******************************************/
@@ -159,4 +208,15 @@ void mount_fs(void)
     };
 
     esp_vfs_fat_spiflash_mount_ro(BASE_PATH, "storage", &esp_vfs_fat_mount_config);
+}
+
+// Helper functions
+
+int getTypeId(cJSON *type)
+{
+  if (type == NULL || !cJSON_IsString(type)) return WS_TYPE_UNSPECIFIED;
+  
+  if (strcmp(type->valuestring, "onopen") == 0) return WS_TYPE_ONOPEN;
+  if (strcmp(type->valuestring, "joystick") == 0) return WS_TYPE_JOYSTICK;
+  return WS_TYPE_UNSPECIFIED;
 }

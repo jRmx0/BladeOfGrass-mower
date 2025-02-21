@@ -8,7 +8,7 @@ Develop a fully autonomous robot mower that cuts grass based on a predefined GPS
 
 ### Features:
 #### Robot:
-- Autonomous Operation: 
+- Autonomous operation: 
 	- Operates within a GPS-defined boundary
 	- Runs on a schedule
 	- Adapts schedule based on weather

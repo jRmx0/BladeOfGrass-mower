@@ -1,0 +1,10 @@
+{
+    "files.associations": {
+        "freertos.h": "c",
+        "gpio.h": "c",
+        "server.h": "c",
+        "toggleled.h": "c",
+        "ledc.h": "c",
+        "main.h": "c"
+    }
+}

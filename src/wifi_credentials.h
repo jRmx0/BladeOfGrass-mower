@@ -1,7 +1,7 @@
 #ifndef WIFI_LOGIN_H
 #define WIFI_LOGIN_H
 
-#define WIFI_SSID "your_wifi_name"
-#define WIFI_PASS "your_wifi_pass"
+#define WIFI_SSID "Karsiu36"
+#define WIFI_PASS "nausode5305"
 
 #endif

@@ -5,6 +5,7 @@
         "server.h": "c",
         "toggleled.h": "c",
         "ledc.h": "c",
-        "main.h": "c"
+        "main.h": "c",
+        "nvs_flash.h": "c"
     }
 }

@@ -48,4 +48,4 @@ build.ninja
 __pycache__/
 
 # Ignore confidential info
-wifi_credentials.h
+# wifi_credentials.h

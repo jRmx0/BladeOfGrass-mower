@@ -18,10 +18,10 @@ void app_main(void)
 {
     system_init();
 
-    motor_drive_test();
+    //motor_drive_test();
     
-    //ESP_ERROR_CHECK(nvs_flash_init());
+    ESP_ERROR_CHECK(nvs_flash_init());
     
-    //wifi_connect_init();
-    //ESP_ERROR_CHECK(wifi_connect_sta(WIFI_SSID, WIFI_PASS, 10000));
+    wifi_connect_init();
+    ESP_ERROR_CHECK(wifi_connect_sta(WIFI_SSID, WIFI_PASS, 60000));
 }

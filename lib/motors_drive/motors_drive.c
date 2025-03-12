@@ -9,7 +9,6 @@
 #include "freertos/semphr.h"
 #include "driver/ledc.h"
 #include "driver/gpio.h"
-#include "app.h"
 #include "esp_log.h"
 
 #define TAG "DRIVE"

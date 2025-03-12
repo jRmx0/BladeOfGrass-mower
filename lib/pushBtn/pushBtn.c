@@ -7,7 +7,6 @@
 #include "freertos/semphr.h"
 #include "freertos/task.h"
 #include "cJSON.h"
-#include "app.h"
 
 static SemaphoreHandle_t btn_sem;
 
@@ -25,7 +24,7 @@ static void btn_push_task(void *params)
     cJSON_AddBoolToObject(payload, "btn_state", gpio_get_level(BTN));
     char *message = cJSON_Print(payload);
     //printf("message: %s\n", message);
-    send_ws_message(message);
+    //send_ws_message(message);
     cJSON_Delete(payload);
     free(message);
   }

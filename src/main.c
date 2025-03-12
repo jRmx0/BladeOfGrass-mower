@@ -12,8 +12,4 @@ void app_main(void)
     
     wifi_connect_init();
     ESP_ERROR_CHECK(wifi_connect_sta(WIFI_SSID, WIFI_PASS, 10000));
-
-    //start_mdns_service();
-    mount_fs();
-    init_server();
 }

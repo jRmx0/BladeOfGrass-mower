@@ -1,4 +1,6 @@
+#include "board_config.h"
 #include "button.h"
+
 #include "freertos/FreeRTOS.h"
 #include "freertos/semphr.h"
 #include "freertos/task.h"
@@ -7,8 +9,6 @@
 #include "cJSON.h"
 
 #define TAG "BUTTON"
-
-#define BUTTON_BUILTIN_GPIO GPIO_NUM_0
 
 static gpio_num_t button_gpio[BUTTON_MAX];
 static bool button_state[BUTTON_MAX];
@@ -81,7 +81,7 @@ void button_init(button_id_t button, gpio_num_t gpio_num)
 
 void buttons_init(void)
 {
-    button_init(BUTTON_BUILTIN, BUTTON_BUILTIN_GPIO);
+    button_init(BUTTON_BUILTIN, BOARD_BUTTON_BUILTIN_GPIO);
 }
 
 bool button_is_pressed(button_id_t button)

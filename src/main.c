@@ -6,7 +6,7 @@
 
 #include "led.h"
 #include "button.h"
-#include "motors_drive.h"
+#include "motor_drive.h"
 
 #include "wifi_credentials.h"
 #include "nvs_flash.h"
@@ -18,12 +18,10 @@ void app_main(void)
 {
     system_init();
 
-    motors_drive_init();
-
-    //motors_drive_testing();
+    motor_drive_test();
     
-    ESP_ERROR_CHECK(nvs_flash_init());
+    //ESP_ERROR_CHECK(nvs_flash_init());
     
-    wifi_connect_init();
-    ESP_ERROR_CHECK(wifi_connect_sta(WIFI_SSID, WIFI_PASS, 10000));
+    //wifi_connect_init();
+    //ESP_ERROR_CHECK(wifi_connect_sta(WIFI_SSID, WIFI_PASS, 10000));
 }

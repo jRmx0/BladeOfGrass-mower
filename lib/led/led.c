@@ -1,3 +1,4 @@
+#include "board_config.h"
 #include "led.h"
 
 #include "driver/gpio.h"
@@ -5,8 +6,6 @@
 #include "esp_log.h"
 
 #define TAG "LED"
-
-#define LED_BUILTIN_GPIO GPIO_NUM_38
 
 static gpio_num_t led_gpio[LED_MAX];
 static bool led_state[LED_MAX];
@@ -91,5 +90,5 @@ bool led_get_state(led_id_t led)
 
 void leds_init(void)
 {
-    led_init(LED_BUILTIN, LED_BUILTIN_GPIO);
+    led_init(LED_BUILTIN, BOARD_LED_BUILTIN_GPIO);
 }

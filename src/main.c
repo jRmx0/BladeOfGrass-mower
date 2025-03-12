@@ -3,7 +3,7 @@
 void app_main(void)
 {
     motors_drive_init();
-    led_init();
+    leds_init();
     btn_init();
 
     //motors_drive_testing();

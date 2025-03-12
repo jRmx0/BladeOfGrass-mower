@@ -1,9 +1,12 @@
 #include "led.h"
+
 #include "driver/gpio.h"
 #include <stdio.h>
 #include "esp_log.h"
 
 #define TAG "LED"
+
+#define LED_BUILTIN_GPIO GPIO_NUM_38
 
 static gpio_num_t led_gpio[LED_MAX];
 static bool led_state[LED_MAX];

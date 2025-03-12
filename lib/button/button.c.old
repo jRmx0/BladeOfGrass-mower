@@ -40,3 +40,4 @@ void btn_init(void)
   gpio_install_isr_service(0);
   gpio_isr_handler_add(BTN, on_btn_pushed, NULL);
 }
+

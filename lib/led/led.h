@@ -3,8 +3,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-
-#define LED_BUILTIN_GPIO GPIO_NUM_38
+#include "driver/gpio.h"
 
 typedef enum {
     LED_BUILTIN,
@@ -18,5 +17,7 @@ void led_off(led_id_t led);
 void led_toggle(led_id_t led);
 void led_set_state(led_id_t led, bool is_on);
 bool led_get_state(led_id_t led); 
+
+void leds_init(void);
 
 #endif // LED_H

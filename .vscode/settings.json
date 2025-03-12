@@ -7,6 +7,7 @@
         "ledc.h": "c",
         "main.h": "c",
         "nvs_flash.h": "c",
-        "stdlib.h": "c"
+        "stdlib.h": "c",
+        "motors_drive.h": "c"
     }
 }

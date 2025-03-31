@@ -30,7 +30,7 @@ static int disconnection_err_count = 0;
 
 // --- Forward Declarations ---
 static void event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data);
-char *get_wifi_disconnection_string(wifi_err_reason_t reason);  // Assume this exists elsewhere
+char *get_wifi_disconnection_string(wifi_err_reason_t reason); 
 
 // --- Event Handler ---
 static void event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
@@ -38,15 +38,19 @@ static void event_handler(void *arg, esp_event_base_t event_base, int32_t event_
     switch (event_id)
     {
         case WIFI_EVENT_STA_START:
+        {
             ESP_LOGI(WIFI_TAG, "WIFI_EVENT_STA_START");
             esp_wifi_connect();
             break;
+        }
 
         case WIFI_EVENT_STA_CONNECTED:
+        {
             ESP_LOGI(WIFI_TAG, "WIFI_EVENT_STA_CONNECTED");
             disconnection_err_count = 0;
             break;
-
+        }
+    
         case WIFI_EVENT_STA_DISCONNECTED:
         {
             wifi_event_sta_disconnected_t *event = event_data;
@@ -96,10 +100,12 @@ static void event_handler(void *arg, esp_event_base_t event_base, int32_t event_
         }
 
         case IP_EVENT_STA_GOT_IP:
+        {
             ESP_LOGI(WIFI_TAG, "IP_EVENT_STA_GOT_IP");
             xEventGroupSetBits(wifi_events, BIT_CONNECTED);
             break;
-
+        }    
+            
         default:
             break;
     }

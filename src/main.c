@@ -16,7 +16,7 @@
 
 void app_main(void)
 {
-    system_init();
+    system_hardware_init();
 
     //motor_drive_test();
     

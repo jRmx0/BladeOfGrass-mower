@@ -4,7 +4,7 @@
 #include "button.h"
 #include "motor_drive.h"
 
-void system_init(void)
+void system_hardware_init(void)
 {
     leds_init();
     buttons_init();

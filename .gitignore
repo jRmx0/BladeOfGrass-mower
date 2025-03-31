@@ -49,3 +49,4 @@ __pycache__/
 
 # Ignore confidential info
 wifi_credentials.h
+config_credentials.h

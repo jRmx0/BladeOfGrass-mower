@@ -10,6 +10,9 @@
         "stdlib.h": "c",
         "motors_drive.h": "c",
         "semphr.h": "c",
-        "task.h": "c"
+        "task.h": "c",
+        "motor_drive.h": "c",
+        "button.h": "c",
+        "thingsboard.h": "c"
     }
 }

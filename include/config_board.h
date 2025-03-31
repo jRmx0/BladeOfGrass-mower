@@ -5,6 +5,7 @@
 
 // === LEDS ===
 #define BOARD_LED_BUILTIN_GPIO              GPIO_NUM_38
+#define LED_TESTING                         GPIO_NUM_38
 
 // === BUTTONS ===
 #define BOARD_BUTTON_BUILTIN_GPIO           GPIO_NUM_0

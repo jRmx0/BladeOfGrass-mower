@@ -16,4 +16,8 @@
 #define BOARD_MOTOR_1_PIN_FORWARD           42
 #define BOARD_MOTOR_1_PIN_BACKWARD          41
 
+// UART UM980
+#define UART_TX_PIN 17
+#define UART_RX_PIN 18
+
 #endif // BOARD_CONFIG_H

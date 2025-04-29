@@ -3,25 +3,25 @@
 .vscode/c_cpp_properties.json
 .vscode/launch.json
 .vscode/ipch
-#.vscode
+.vscode
 
 # Ignore scripts
 scripts/
 
 # Ignore build directories
-#build/
+build/
 
 # Ignore SDK configuration files
-#sdkconfig
-#sdkconfig.ci
-#sdkconfig.old
+sdkconfig
+sdkconfig.ci
+sdkconfig.old
 
 # Ignore CMake generated files
 CMakeCache.txt
 CMakeFiles/
 cmake_install.cmake
 build.ninja
-#CMakeLists.txt
+CMakeLists.txt
 
 # Ignore binary files
 *.bin

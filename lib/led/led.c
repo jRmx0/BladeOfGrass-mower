@@ -1,4 +1,4 @@
-#include "board_config.h"
+#include "config_board.h"
 #include "led.h"
 
 #include "driver/gpio.h"

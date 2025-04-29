@@ -10,6 +10,8 @@ typedef enum {
     LED_MAX
 } led_id_t;
 
+// #define LED_TESTING GPIO_NUM_38
+
 void led_init(led_id_t led, gpio_num_t gpio_num);
 
 void led_on(led_id_t led);

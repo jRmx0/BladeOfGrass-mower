@@ -1,47 +1,24 @@
 # BladeOfGrass-mower
-## Overview
-### Project Name:
-Blade of Grass (BoG)
+An ESP32-S3-based autonomous lawn mower controller that leverages GNSS positioning, sensors, and user inputs for precision grass cutting without perimeter wires.
 
-### Objective:
-Develop a fully autonomous robot mower that cuts grass based on a predefined GPS boundary and schedule. The mower adapts to weather conditions using onboard sensors and internet data, while providing user control via a web interface and emergency alerts via SMS.
+## Project Goal
+This controller executes all operational aspects from route planning to motor control using three primary data sources:
 
-### Features:
-#### Robot:
-- Autonomous operation: 
-	- Operates within a GPS-defined boundary
-	- Runs on a schedule
-	- Adapts schedule based on weather
-- Manual control
-- Communication:
-	- 4G (RTK, robot-server)
-	- SMS (Emergency)
-	- Local AP (robot-user)
-- Onboard data logging
-- GPS boundary setup
-- RTK rower
-#### Server:
-- Data storage
-- Admin dashboard web server
-- RTK base station
+| Data source      | Functional Purpose |
+| ---------------- | - |
+| Internet         | Wi-Fi connection for ThingsBoard integration enabling remote monitoring and control |
+| RTK              | Centimeter-level location tracking for accurate navigation |
+| On-board sensors | <ul> <li>Location interpolation between GNSS updates</li> <li>Obstacle detection and avoidance</li> <li>System status monitoring</li> </ul> |
 
-#### User: 
-- Single user (prototype phase)
-- Setup procedure 
-- Monitoring
-- Control
-- SMS receiving
+The mower navigates using centimeter-accurate positioning from the UM980 GNSS module, maintaining location awareness between updates by calculating position from speed and directional data.
 
-### High-Level Architecture:
+Users simply define a virtual boundary, and the mower automatically:
+- Plans and executes efficient cutting paths
+- Manages multi-session mowing for large areas
+- Returns to the charging station when needed
 
-<p align="left">
-    <img src="images/BoG_High-level_Architecture.png" alt="Project Architecture" width="450"/>
-</p>
+## Project Timeline
+For a detailed view of the project roadmap and development progress, please see [TIMELINE](./TIMELINE.md) file.
 
-#### Robot:
-The ESP32-S3-based autonomous mower features sensors, 4G and Wi-Fi AP connectivity, an onboard display, emergency hardware, RTK capabilities, and an onboard admin website for configuration and monitoring.
-#### Server:
-The ESP32-S3-based server, kept at home, functions as a data logger, RTK base station, and intermediary between the user and robot, with connections to home Wi-Fi and an onboard admin website for configuration and monitoring.
-#### User:
-The user interacts with the system through a web browser interface to control, monitor, and configure the robot, connecting via home Wi-Fi to the server and the robot’s AP for local access, while receiving SMS emergency notifications.
-
+## License
+This project is licensed under the terms of the [LICENSE](./LICENSE) file.

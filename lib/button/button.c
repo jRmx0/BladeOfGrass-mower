@@ -1,4 +1,4 @@
-#include "board_config.h"
+#include "config_board.h"
 #include "button.h"
 
 #include "freertos/FreeRTOS.h"

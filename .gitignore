@@ -15,6 +15,7 @@ build/
 sdkconfig
 sdkconfig.ci
 sdkconfig.old
+sdkconfig.esp32-s3-yd-wroom
 
 # Ignore CMake generated files
 CMakeCache.txt

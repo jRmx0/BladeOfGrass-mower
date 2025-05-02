@@ -23,4 +23,6 @@ extern QueueHandle_t um980_gga_queue;
 
 void uart_um980_init(void);
 
+void uart_um980_request_gga_once_task(void *pvParameters);
+
 #endif // UM980_H

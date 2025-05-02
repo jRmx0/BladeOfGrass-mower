@@ -32,12 +32,12 @@ void app_main(void)
     wifi_monitor_init();
     wifi_led_init(3);
     
-    ESP_ERROR_CHECK(wifi_connect_sta(WIFI_SSID, WIFI_PASS, 60000));
+    ESP_ERROR_CHECK(wifi_connect_sta(WIFI_SSID, WIFI_PASS, portMAX_DELAY));
+
+    uart_um980_init();
 
     tb_init(TB_MQTT_HOST, TB_MQTT_PORT, TB_MQTT_ACCESS_TOKEN);
     tb_connect();
-
-    uart_um980_init();
 }
 
 

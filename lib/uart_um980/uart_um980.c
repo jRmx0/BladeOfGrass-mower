@@ -4,6 +4,7 @@
 
 #include "nmea.h"
 #include "uart_um980.h"
+#include "thingsboard.h"
 
 #include <stdbool.h>
 #include <string.h>
@@ -11,14 +12,14 @@
 #include "freertos/task.h"
 #include "driver/uart.h"
 #include "esp_log.h"
-#include "wifi_monitor.h"
+// #include "wifi_monitor.h"
 
 #define TAG "UM980"
 
 #define UART_UM980 UART_NUM_1
 #define UART_BAUD_RATE 115200
 
-#define MESSAGE_INTERVAL_MS 1000 // obsolete
+// #define MESSAGE_INTERVAL_MS 1000 // obsolete
 
 static QueueHandle_t um980_uart_queue;
 #define UM980_UART_QUEUE_SIZE 1
@@ -26,7 +27,6 @@ static QueueHandle_t um980_uart_queue;
 QueueHandle_t um980_gga_queue;
 #define UM980_GGA_QUEUE_SIZE 1
 
-static void uart_um980_request_gga_task(void *pvParameters);
 static void uart_um980_recieve_gga_task(void *pvParameters);
 
 void uart_um980_init(void)
@@ -59,12 +59,19 @@ void uart_um980_init(void)
                                  UART_PIN_NO_CHANGE,
                                  UART_PIN_NO_CHANGE));
 
-    xTaskCreate(uart_um980_request_gga_task,
-                "um980_request_gga_task",
+    // xTaskCreate(uart_um980_request_gga_task,
+    //             "um980_request_gga_task",
+    //             4096,
+    //             NULL,
+    //             6,
+    //             &wifi_monitor_um980_handler);
+    
+    xTaskCreate(uart_um980_request_gga_once_task,
+                "um980_request_gga_once_task",
                 4096,
                 NULL,
                 6,
-                &wifi_monitor_um980_handler);
+                &tb_gga_request_handler);
 
     xTaskCreate(uart_um980_recieve_gga_task,
                 "uart_um980_recieve_gga_task",
@@ -80,37 +87,48 @@ void uart_um980_init(void)
 //   - WIFI_CONNECTED (redundant)
 //   - TB_CONNECTED (redundant)
 //   - REQUEST_RECEIVED (might keep task notification)
-static void uart_um980_request_gga_task(void *pvParameters)
-{
-    uint32_t message_count = 0;
-    uint32_t notification_value;
-    const char *gga_request = "LOG GNGGA ONCE\r\n";
+// static void uart_um980_request_gga_task(void *pvParameters)
+// {
+//     uint32_t message_count = 0;
+//     uint32_t notification_value;
+//     const char *gga_request = "LOG GNGGA ONCE\r\n";
 
+//     while (1)
+//     {
+//         // Wait for initial notification or remain blocked until WiFi connects
+//         if (message_count == 0)
+//         {
+//             xTaskNotifyWait(0, 0, &notification_value, portMAX_DELAY);
+//             if (notification_value != WIFI_MONITOR_CONNECTED)
+//             {
+//                 // If we get notified but WiFi is not connected, continue waiting
+//                 continue;
+//             }
+//         }
+
+//         message_count++;
+        
+//         uart_write_bytes(UART_UM980, gga_request, strlen(gga_request));
+        
+//         // Wait for the next interval or a notification
+//         if (xTaskNotifyWait(0, 0, &notification_value, pdMS_TO_TICKS(MESSAGE_INTERVAL_MS)))
+//         {
+//             if (notification_value != WIFI_MONITOR_CONNECTED)
+//             {
+//                 message_count = 0;
+//             }
+//         }
+//     }
+// }
+
+void uart_um980_request_gga_once_task(void *pvParameters)
+{
+    const char *gga_request = "LOG GNGGA ONCE\r\n";
+    
     while (1)
     {
-        // Wait for initial notification or remain blocked until WiFi connects
-        if (message_count == 0)
-        {
-            xTaskNotifyWait(0, 0, &notification_value, portMAX_DELAY);
-            if (notification_value != WIFI_MONITOR_CONNECTED)
-            {
-                // If we get notified but WiFi is not connected, continue waiting
-                continue;
-            }
-        }
-
-        message_count++;
-        
+        ulTaskNotifyTake(0, portMAX_DELAY);
         uart_write_bytes(UART_UM980, gga_request, strlen(gga_request));
-        
-        // Wait for the next interval or a notification
-        if (xTaskNotifyWait(0, 0, &notification_value, pdMS_TO_TICKS(MESSAGE_INTERVAL_MS)))
-        {
-            if (notification_value != WIFI_MONITOR_CONNECTED)
-            {
-                message_count = 0;
-            }
-        }
     }
 }
 

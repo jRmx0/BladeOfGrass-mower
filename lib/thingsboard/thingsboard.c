@@ -8,12 +8,19 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include <string.h>
-#include <led.h>
-#include <motor_drive.h>
 #include <driver/gpio.h>
+
+#include "led.h"
+#include "motor_drive.h"
+#include "nmea.h"
+#include "uart_um980.h"
 
 static const char *TAG = "ThingsBoard";
 static esp_mqtt_client_handle_t client;
+
+TaskHandle_t tb_gga_request_handler = NULL;
+
+static bool tb_connected = false;
 
 // ThingsBoard configuration
 static char tb_mqtt_host[128];
@@ -26,6 +33,7 @@ static int tb_send_rpc_response(const char *request_id, const char *response);
 static void tb_rpc_callback(const char *method, cJSON *params, const char *request_id);
 
 static void tb_telemetry_task(void *param);
+static void tb_location_task(void *pvParameters);
 static int tb_send_telemetry(const char *payload, bool retain);
 
 void tb_init(const char *host, int port, const char *access_token)
@@ -57,6 +65,13 @@ esp_err_t tb_connect(void)
                 5, 
                 NULL);
 
+    xTaskCreate(tb_location_task, 
+                "tb_location_task", 
+                4096, 
+                NULL, 
+                5, 
+                NULL);
+
     return ESP_OK;
 }
 
@@ -71,9 +86,11 @@ static void mqtt_event_handler(void *event_handler_arg, esp_event_base_t event_b
         ESP_LOGI(TAG, "MQTT_EVENT_CONNECTED to ThingsBoard");
         // Subscribe to RPC requests (for remote control)
         esp_mqtt_client_subscribe(client, "v1/devices/me/rpc/request/+", 1);
+        tb_connected = true;
         break;
     case MQTT_EVENT_DISCONNECTED:
         ESP_LOGI(TAG, "MQTT_EVENT_DISCONNECTED");
+        tb_connected = false;
         break;
     case MQTT_EVENT_SUBSCRIBED:
         ESP_LOGI(TAG, "MQTT_EVENT_SUBSCRIBED");
@@ -82,17 +99,17 @@ static void mqtt_event_handler(void *event_handler_arg, esp_event_base_t event_b
         ESP_LOGI(TAG, "MQTT_EVENT_UNSUBSCRIBED");
         break;
     case MQTT_EVENT_PUBLISHED:
-        ESP_LOGI(TAG, "MQTT_EVENT_PUBLISHED");
+        ESP_LOGD(TAG, "MQTT_EVENT_PUBLISHED");
         break;
     case MQTT_EVENT_DATA:
-        ESP_LOGI(TAG, "MQTT_EVENT_DATA");
-        printf("topic %.*s\n", event->topic_len, event->topic);
+        ESP_LOGD(TAG, "MQTT_EVENT_DATA");
+        //printf("topic %.*s\n", event->topic_len, event->topic);
 
         // Handle RPC requests from ThingsBoard
         if (strncmp(event->topic, "v1/devices/me/rpc/request/", strlen("v1/devices/me/rpc/request/")) == 0)
         {
             // Process RPC commands here
-            printf("RPC request: %.*s\n", event->data_len, event->data);
+            // printf("RPC request: %.*s\n", event->data_len, event->data);
 
             // Parse the JSON request
             cJSON *request_json = cJSON_Parse(event->data);
@@ -117,7 +134,7 @@ static void mqtt_event_handler(void *event_handler_arg, esp_event_base_t event_b
         }
         else
         {
-            printf("message: %.*s\n", event->data_len, event->data);
+            //printf("message: %.*s\n", event->data_len, event->data);
         }
         break;
     case MQTT_EVENT_ERROR:
@@ -131,20 +148,20 @@ static void mqtt_event_handler(void *event_handler_arg, esp_event_base_t event_b
 // TODO: refactor to SWITCH
 static void tb_rpc_callback(const char *method, cJSON *params, const char *request_id)
 {
-    ESP_LOGI(TAG, "Received RPC method: %s", method);
+    ESP_LOGD(TAG, "Received RPC method: %s", method);
 
     if (strcmp(method, "setState") == 0 && cJSON_IsBool(params))
     {
         // Set the LED state based on the params value
         bool led_state = cJSON_IsTrue(params);
-        led_set_state(LED_TESTING, led_state);
+        led_set_state(LED_BUILTIN, led_state);
 
         // Create simple JSON response with LED state
         char response[50];
-        sprintf(response, "{\"value\":%s}", led_get_state(LED_TESTING) ? "true" : "false");
+        sprintf(response, "{\"value\":%s}", led_get_state(LED_BUILTIN) ? "true" : "false");
         // Send response back to ThingsBoard
         tb_send_rpc_response(request_id, response);
-        ESP_LOGI(TAG, "Sent RPC response: %s", response);
+        ESP_LOGD(TAG, "Sent RPC response: %s", response);
     }
     else if (strcmp(method, "setGpioStatus") == 0 && cJSON_IsObject(params))
     {
@@ -170,7 +187,7 @@ static void tb_rpc_callback(const char *method, cJSON *params, const char *reque
 
             // Send response back to ThingsBoard
             tb_send_rpc_response(request_id, response);
-            ESP_LOGI(TAG, "Sent RPC response: %s", response);
+            ESP_LOGD(TAG, "Sent RPC response: %s", response);
 
             free(response);
         }
@@ -196,24 +213,72 @@ static void tb_telemetry_task(void *param)
 
     while (true)
     {
+        vTaskDelay(pdMS_TO_TICKS(15000));
+
         // Create JSON payload for ThingsBoard
         // Format: {"temperature":25,"humidity":60,"count":123}
         cJSON *payload = cJSON_CreateObject();
         cJSON_AddNumberToObject(payload, "temperature", 25.0 + (float)(rand() % 10));
         cJSON_AddNumberToObject(payload, "humidity", 60.0 + (float)(rand() % 20));
         cJSON_AddNumberToObject(payload, "count", count++);
-        cJSON_AddBoolToObject(payload, "valueLed", led_get_state(LED_TESTING));
+        cJSON_AddBoolToObject(payload, "valueLed", led_get_state(LED_BUILTIN));
 
         telemetry = cJSON_PrintUnformatted(payload);
         cJSON_Delete(payload);
 
         // Send to ThingsBoard telemetry topic
-        ESP_LOGI(TAG, "Sending telemetry: %s", telemetry);
+        ESP_LOGD(TAG, "Sending telemetry: %s", telemetry);
+        
+        if (!tb_connected)
+        {
+            free(telemetry);
+            continue;
+        }
+        
         tb_send_telemetry(telemetry, false);
-
         free(telemetry);
+    }
+}
 
-        vTaskDelay(pdMS_TO_TICKS(5000));
+static void tb_location_task(void *pvParameters)
+{
+    char* location = NULL;
+    gga_report_t gga_report;
+    location_data_t location_data;
+
+    while (true)
+    {
+        vTaskDelay(pdMS_TO_TICKS(1000));
+
+        xTaskNotifyGive(tb_gga_request_handler);
+
+        xQueueReceive(um980_gga_queue, &gga_report, portMAX_DELAY);
+
+        ESP_LOGD(TAG, "GGA msg: %.*s", gga_report.size, gga_report.data);
+
+        location_data = nmea_extract_location_data((const char*) gga_report.data);
+        if (location_data.latitude == 0 && location_data.longitude == 0)
+        {
+            continue;
+        }
+
+        cJSON *payload = cJSON_CreateObject();
+        cJSON_AddNumberToObject(payload, "latitude", location_data.latitude);
+        cJSON_AddNumberToObject(payload, "longitude", location_data.longitude);
+
+        location = cJSON_PrintUnformatted(payload);
+        cJSON_Delete(payload);
+
+        ESP_LOGD(TAG, "Sending location: %s", location);
+        
+        if (!tb_connected)
+        {
+            free(location);
+            continue;
+        }
+        
+        tb_send_telemetry(location, false);
+        free(location);
     }
 }
 

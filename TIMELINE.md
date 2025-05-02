@@ -1,4 +1,7 @@
 ```
+🟢 - reached milestone
+🟡 - current verssion
+
 ┏━━━━━◉ v1.0.x Milestone 
 ┃     ╰─ [Fully operational robot]
 ┃
@@ -45,10 +48,10 @@
 ┃   ├╌╌╌╌● v0.1.3 
 ┃   ╎    ╰─ [AS5600 support, movement speed monitoring]
 ┃   ╎
-┃   ├╌╌╌╌● v0.1.2 
+┃   ├╌╌╌╌● v0.1.2 🟡
 ┃   ╎    ╰─ [Monitoring and controlling system for location tracking] 
 ┃   ╎
-┃   ├╌╌╌╌● v0.1.1 🟡
+┃   ├╌╌╌╌● v0.1.1 
 ┃   ╎    ╰─ [Periodic location reporting]
 ┃   ╎
 ┣━━━┻━◉ v0.1.x Milestone

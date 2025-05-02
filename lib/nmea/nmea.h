@@ -29,6 +29,12 @@
 #define GPS_QUALITY_MANUAL       7
 #define GPS_QUALITY_SIMULATOR    8 
 
+typedef struct
+{
+    double latitude;
+    double longitude;
+} location_data_t;
+
 /**
  * @brief Check if a message is a GNGGA message that contains valid location data
  * 
@@ -41,6 +47,8 @@
  * @return false otherwise
  */
 bool nmea_is_gga_location_report(const char *message);
+
+location_data_t nmea_extract_location_data(const char *gga_message);
 
 /**
  * @brief Get the GPS fix quality from a GGA message

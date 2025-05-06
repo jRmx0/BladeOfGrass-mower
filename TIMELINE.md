@@ -1,6 +1,6 @@
 ```
 🟢 - reached milestone
-🟡 - current verssion
+🟡 - current version
 
 ┏━━━━━◉ v1.0.x Milestone 
 ┃     ╰─ [Fully operational robot]
